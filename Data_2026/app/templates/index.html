@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Flask App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <a href="/json"><button>JSON</button></a>
+        <a href="/image"><button>Image</button></a>
+        <a href="/error"><button>Error</button></a>
+    </div>
+</body>
+</html>
