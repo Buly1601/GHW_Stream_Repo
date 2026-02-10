@@ -29,4 +29,4 @@ jobs:
         run: env/bin/pip install -r ./Data_2026/requirements.txt
 
       - name: Run Tests
-        run: python3 -m pytest -v
+        run: python3 -m pytest Data_2026
