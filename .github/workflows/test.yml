@@ -27,8 +27,8 @@ jobs:
       
       - name: Install Dependencies
         run: | 
-          env/bin/pip install -r ./Data_2026/requirements.txt
-          pip install pytest
+          python3 -m pip install -r ./Data_2026/requirements.txt
+          python3 -m pip install pytest pytest-flask flask
 
       - name: Run Tests
         run: python3 -m pytest Data_2026 -v
