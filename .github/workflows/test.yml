@@ -3,13 +3,13 @@ on:
   push:
     branches:
       - main
-  pull_requst:
+  pull_request:
     branches:
       - main
 
 jobs:
   test:
-    runs_on: ubuntu_latest
+    runs-on: ubuntu-latest
     name: Run Tests
     env:
       TESTING: true
@@ -20,7 +20,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-        python-version: '3.9.25' 
+        python-version: '3.9' 
       
       - name: Setup Python Virtual Environment
         run: python3 -m venv env
