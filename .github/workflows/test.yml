@@ -1,0 +1,32 @@
+name: Run Tests
+on:
+  push:
+    branches:
+      - main
+  pull_requst:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs_on: ubuntu_latest
+    name: Run Tests
+    env:
+      TESTING: true
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+        python-version: '3.9.25' 
+      
+      - name: Setup Python Virtual Environment
+        run: python3 -m venv env
+      
+      - name: Install Dependencies
+        run: env/bin/pip install -r requirements.txt
+
+      - name: Run Tests
+        run: ./tests/run_tests.sh
