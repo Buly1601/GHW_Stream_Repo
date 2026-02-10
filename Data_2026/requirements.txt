@@ -8,4 +8,6 @@ pluggy==1.6.0
 Pygments==2.19.2
 pytest==9.0.2
 Werkzeug==3.1.5
+requests
+pytest-flask
 
