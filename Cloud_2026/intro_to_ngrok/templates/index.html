@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Live Request Inspector</title>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <style>
+    body { font-family: Arial; background: #0f172a; color: #e2e8f0; padding: 20px; }
+    h1 { color: #38bdf8; }
+    .card {
+      background: #1e293b;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+    }
+    pre { white-space: pre-wrap; }
+    canvas { background: white; border-radius: 10px; margin-bottom: 20px; }
+    #map { height: 400px; margin-bottom: 20px; border-radius: 10px; }
+  </style>
+</head>
+<body>
+
+<h1> --- Live Request Inspector --- </h1>
+<p id="count">Total Requests: 0</p>
+
+<canvas id="chart" height="100"></canvas>
+
+<div id="map"></div>
+
+<div id="logs"></div>
+
+<script>
+// ====== CHART ======
+const ctx = document.getElementById('chart').getContext('2d');
+let labels = [];
+let dataPoints = [];
+
+const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Requests (last updates)',
+            data: dataPoints
+        }]
+    }
+});
+
+// ====== MAP ======
+const map = L.map('map').setView([20, 0], 2);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 18,
+}).addTo(map);
+
+let markers = [];
+
+// ====== REAL-TIME ======
+const logsDiv = document.getElementById("logs");
+const countEl = document.getElementById("count");
+
+const evtSource = new EventSource("/stream");
+
+evtSource.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+
+    countEl.innerText = "Total Requests: " + data.length;
+
+    // Update chart
+    const now = new Date().toLocaleTimeString();
+    labels.push(now);
+    dataPoints.push(data.length);
+
+    if (labels.length > 10) {
+        labels.shift();
+        dataPoints.shift();
+    }
+
+    chart.update();
+
+    // ====== UPDATE MAP ======
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
+
+    data.forEach(r => {
+        if (r.lat && r.lon) {
+            const marker = L.marker([r.lat, r.lon]).addTo(map);
+
+            marker.bindPopup(`
+              <b>IP:</b> ${r.ip}<br>
+              <b>Location:</b> ${r.location}<br>
+              <b>Method:</b> ${r.method}
+            `);
+
+            markers.push(marker);
+        }
+    });
+
+    // ====== UPDATE LOGS ======
+    logsDiv.innerHTML = "";
+
+    data.forEach(r => {
+        logsDiv.innerHTML += `
+        <div class="card">
+          <b>Time:</b> ${r.time}<br>
+          <b>IP:</b> ${r.ip}<br>
+          <b>Location:</b> ${r.location}<br>
+          <b>Method:</b> ${r.method}<br>
+          <b>Path:</b> ${r.path}<br>
+          <b>Headers:</b>
+          <pre>${JSON.stringify(r.headers, null, 2)}</pre>
+          <b>Body:</b>
+          <pre>${r.body}</pre>
+        </div>
+        `;
+    });
+};
+</script>
+
+</body>
+</html>
