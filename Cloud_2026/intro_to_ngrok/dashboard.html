@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<!--- Webhook running ok? --->
+<html>
+<head>
+    <title>Live Event Dashboard</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #111; color: #eee; padding: 20px; }
+        h1 { color: #00ff9d; }
+        #events { list-style: none; padding: 0; }
+        #events li {
+            background: #222;
+            margin-bottom: 8px;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 5px solid #00ff9d;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <h1>Live Event Dashboard</h1>
+    <p>Watching for webhooks...</p>
+    <ul id="events">
+        </ul>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.js"></script>
+    <script>
+        // Connect to our local server
+        const socket = io();
+
+        // This is the magic!
+        // Listen for messages from the server on the 'new_event' channel
+        socket.on('new_event', function(msg) {
+            console.log('Event received:', msg.data);
+            
+            // Get the list
+            const eventList = document.getElementById('events');
+            
+            // Create a new list item
+            const newItem = document.createElement('li');
+            newItem.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${msg.data}`;
+            
+            // Add the new item to the TOP of the list
+            eventList.prepend(newItem);
+        });
+    </script>
+</body>
+</html>
